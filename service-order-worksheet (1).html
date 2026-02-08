@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Service Order Worksheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2563eb;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb 0%, #1e40af 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        
+        .step-counter {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .question {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 18px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+        }
+        
+        .btn-back {
+            background: #f5f5f5;
+            color: #666;
+        }
+        
+        .btn-back:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-submit {
+            background: #10b981;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-choice {
+            width: 100%;
+            padding: 20px;
+            margin: 10px 0;
+            font-size: 20px;
+            font-weight: 600;
+            border: 3px solid #e0e0e0;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-choice:hover {
+            border-color: #2563eb;
+            background: #f0f7ff;
+            transform: translateY(-2px);
+        }
+        
+        .btn-yes {
+            border-color: #10b981;
+            color: #10b981;
+        }
+        
+        .btn-yes:hover {
+            background: #ecfdf5;
+            border-color: #059669;
+        }
+        
+        .btn-no {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        
+        .btn-no:hover {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .confirmation-screen {
+            padding: 20px 0;
+        }
+        
+        .success-icon {
+            text-align: center;
+            font-size: 72px;
+            margin-bottom: 20px;
+        }
+        
+        .confirmation-screen h2 {
+            color: #10b981;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        .confirmation-details {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .detail-row {
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .part-entry {
+            background: white;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #2563eb;
+        }
+        
+        .required {
+            color: #ef4444;
+        }
+        
+        .helper-text {
+            font-size: 14px;
+            color: #999;
+            margin-top: 8px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .question {
+                font-size: 18px;
+            }
+            
+            input, textarea, select, button {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Service Order Worksheet</h1>
+            <p>MagTec Alaska</p>
+        </div>
+        
+        <div class="step-counter">
+            Step <span id="currentStep">1</span> of <span id="totalSteps">--</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div id="formSteps"></div>
+    </div>
+
+    <script>
+        // Email configuration
+        const RECIPIENT_EMAILS = ['NSRentals@magtecalaska.com', 'Mrussell@magtecalaska.com'];
+        
+        // Base form fields
+        const baseFields = [
+            {
+                id: 'techName',
+                question: 'Tech name',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter your name'
+            },
+            {
+                id: 'serviceOrderNumber',
+                question: 'Service Order number (SE#)',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter SE#'
+            },
+            {
+                id: 'division',
+                question: 'Division',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter division'
+            },
+            {
+                id: 'project',
+                question: 'Project',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter project name'
+            },
+            {
+                id: 'date',
+                question: 'Date',
+                type: 'date',
+                required: false,
+                defaultValue: () => new Date().toISOString().split('T')[0]
+            },
+            {
+                id: 'assetNumbers',
+                question: 'ASSET number(s)',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter asset number(s)'
+            },
+            {
+                id: 'runHours',
+                question: 'Run hours',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter run hours'
+            },
+            {
+                id: 'mileage',
+                question: 'Mileage',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter mileage'
+            },
+            {
+                id: 'relatedPO',
+                question: 'Related PO number(s)',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter PO number(s) if applicable'
+            },
+            {
+                id: 'complaint',
+                question: 'Description of complaint',
+                type: 'textarea',
+                required: false,
+                placeholder: 'Describe the issue or complaint'
+            },
+            {
+                id: 'correction',
+                question: 'Description of Correction',
+                type: 'textarea',
+                required: false,
+                placeholder: 'Describe what was done to fix the issue'
+            },
+            {
+                id: 'leftToComplete',
+                question: 'What is left to complete?',
+                type: 'textarea',
+                required: false,
+                placeholder: 'Describe remaining work (if any)'
+            },
+            {
+                id: 'partsUsed',
+                question: 'Any parts used?',
+                type: 'yesno',
+                required: false
+            }
+        ];
+
+        const partFields = [
+            {
+                id: 'partNumber',
+                question: 'Part number',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter part number'
+            },
+            {
+                id: 'partDescription',
+                question: 'Part Description',
+                type: 'text',
+                required: false,
+                placeholder: 'Describe the part'
+            },
+            {
+                id: 'quantity',
+                question: 'Quantity',
+                type: 'number',
+                required: false,
+                placeholder: 'Enter quantity used'
+            },
+            {
+                id: 'partSource',
+                question: 'Was this part from inventory or ordered?',
+                type: 'select',
+                required: false,
+                options: ['Inventory', 'Ordered']
+            },
+            {
+                id: 'moreParts',
+                question: 'Did you use more parts?',
+                type: 'yesno',
+                required: false
+            }
+        ];
+
+        const finalFields = [
+            {
+                id: 'laborHours',
+                question: 'Labor hours',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter total labor hours'
+            },
+            {
+                id: 'nextService',
+                question: 'Next planned service mileage or date',
+                type: 'text',
+                required: false,
+                placeholder: 'Enter next service milestone'
+            }
+        ];
+
+        let currentStepIndex = 0;
+        let formData = {};
+        let partsData = [];
+        let currentFields = [];
+        let inPartsSection = false;
+        let currentPartIndex = 0;
+        
+        function buildFieldList() {
+            currentFields = [...baseFields];
+            
+            // Add parts if needed
+            if (formData.partsUsed === 'Yes') {
+                currentFields = currentFields.concat(partFields);
+            }
+            
+            // Add final fields
+            currentFields = currentFields.concat(finalFields);
+        }
+        
+        function init() {
+            buildFieldList();
+            document.getElementById('totalSteps').textContent = getTotalSteps();
+            showStep(currentStepIndex);
+        }
+        
+        function getTotalSteps() {
+            let total = baseFields.length + finalFields.length;
+            if (formData.partsUsed === 'Yes') {
+                total += (partsData.length + 1) * partFields.length;
+            }
+            return total;
+        }
+        
+        function showStep(index) {
+            currentStepIndex = index;
+            const field = currentFields[index];
+            const formStepsDiv = document.getElementById('formSteps');
+            
+            // Update progress
+            const totalSteps = getTotalSteps();
+            const progress = ((index + 1) / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('currentStep').textContent = index + 1;
+            document.getElementById('totalSteps').textContent = totalSteps;
+            
+            // Build step HTML
+            let inputHTML = '';
+            const savedValue = formData[field.id] || '';
+            
+            if (field.type === 'yesno') {
+                inputHTML = `
+                    <button class="btn-choice btn-yes" onclick="handleYesNo('Yes')">✓ Yes</button>
+                    <button class="btn-choice btn-no" onclick="handleYesNo('No')">✗ No</button>
+                `;
+            } else if (field.type === 'textarea') {
+                inputHTML = `<textarea id="currentInput" placeholder="${field.placeholder || ''}">${savedValue}</textarea>`;
+            } else if (field.type === 'select') {
+                inputHTML = `<select id="currentInput">
+                    <option value="">-- Select --</option>
+                    ${field.options.map(opt => `<option value="${opt}" ${savedValue === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                </select>`;
+            } else if (field.type === 'number') {
+                inputHTML = `<input type="number" id="currentInput" placeholder="${field.placeholder || ''}" value="${savedValue}" min="0" step="0.01">`;
+            } else {
+                const defaultVal = field.defaultValue ? field.defaultValue() : '';
+                const value = savedValue || defaultVal;
+                inputHTML = `<input type="${field.type}" id="currentInput" placeholder="${field.placeholder || ''}" value="${value}">`;
+            }
+            
+            const buttons = field.type === 'yesno' ? '' : `
+                <div class="button-group">
+                    ${index > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+                    ${index < currentFields.length - 1 
+                        ? '<button class="btn-next" onclick="goNext()">Next →</button>'
+                        : '<button class="btn-submit" onclick="submitForm()">✓ Submit Report</button>'
+                    }
+                </div>
+            `;
+            
+            formStepsDiv.innerHTML = `
+                <div class="question">${field.question}</div>
+                <div class="input-group">
+                    ${inputHTML}
+                </div>
+                ${buttons}
+            `;
+            
+            // Focus on input
+            setTimeout(() => {
+                const input = document.getElementById('currentInput');
+                if (input) input.focus();
+            }, 100);
+        }
+        
+        function handleYesNo(answer) {
+            const field = currentFields[currentStepIndex];
+            formData[field.id] = answer;
+            
+            // Special handling for parts questions
+            if (field.id === 'partsUsed') {
+                if (answer === 'Yes') {
+                    // Insert part fields after this question
+                    const insertIndex = currentStepIndex + 1;
+                    currentFields.splice(insertIndex, 0, ...partFields);
+                    inPartsSection = true;
+                    currentPartIndex = 0;
+                }
+            } else if (field.id === 'moreParts') {
+                if (answer === 'Yes') {
+                    // Save current part
+                    saveCurrentPart();
+                    // Insert another set of part fields
+                    const insertIndex = currentStepIndex + 1;
+                    currentFields.splice(insertIndex, 0, ...partFields);
+                    currentPartIndex++;
+                } else {
+                    // Save current part and move on
+                    saveCurrentPart();
+                    inPartsSection = false;
+                }
+            }
+            
+            goNext();
+        }
+        
+        function saveCurrentPart() {
+            const part = {
+                partNumber: formData.partNumber || '',
+                partDescription: formData.partDescription || '',
+                quantity: formData.quantity || '',
+                partSource: formData.partSource || ''
+            };
+            partsData.push(part);
+            
+            // Clear part fields for next entry
+            delete formData.partNumber;
+            delete formData.partDescription;
+            delete formData.quantity;
+            delete formData.partSource;
+        }
+        
+        function saveCurrentStep() {
+            const field = currentFields[currentStepIndex];
+            if (field.type !== 'yesno') {
+                const input = document.getElementById('currentInput');
+                formData[field.id] = input ? input.value : '';
+            }
+        }
+        
+        function validateCurrentStep() {
+            // No validation needed - all fields optional
+            return true;
+        }
+        
+        function goNext() {
+            if (!validateCurrentStep()) return;
+            saveCurrentStep();
+            
+            if (currentStepIndex < currentFields.length - 1) {
+                showStep(currentStepIndex + 1);
+            }
+        }
+        
+        function goBack() {
+            saveCurrentStep();
+            if (currentStepIndex > 0) {
+                showStep(currentStepIndex - 1);
+            }
+        }
+        
+        function submitForm() {
+            if (!validateCurrentStep()) return;
+            saveCurrentStep();
+            
+            showConfirmation();
+        }
+        
+        function showConfirmation() {
+            const container = document.querySelector('.container');
+            
+            // Build confirmation details
+            let detailsHTML = '';
+            
+            // Basic info
+            detailsHTML += createDetailRow('Tech Name', formData.techName);
+            detailsHTML += createDetailRow('Service Order #', formData.serviceOrderNumber);
+            detailsHTML += createDetailRow('Division', formData.division);
+            detailsHTML += createDetailRow('Project', formData.project);
+            detailsHTML += createDetailRow('Date', formData.date);
+            detailsHTML += createDetailRow('Asset Number(s)', formData.assetNumbers);
+            detailsHTML += createDetailRow('Run Hours', formData.runHours || 'N/A');
+            detailsHTML += createDetailRow('Mileage', formData.mileage || 'N/A');
+            detailsHTML += createDetailRow('Related PO #', formData.relatedPO || 'N/A');
+            detailsHTML += createDetailRow('Complaint', formData.complaint);
+            detailsHTML += createDetailRow('Correction', formData.correction);
+            detailsHTML += createDetailRow('Left to Complete', formData.leftToComplete || 'Nothing');
+            
+            // Parts section
+            if (formData.partsUsed === 'Yes' && partsData.length > 0) {
+                detailsHTML += '<div class="detail-row"><div class="detail-label">PARTS USED:</div></div>';
+                partsData.forEach((part, index) => {
+                    detailsHTML += `
+                        <div class="part-entry">
+                            <strong>Part ${index + 1}:</strong><br>
+                            Number: ${part.partNumber}<br>
+                            Description: ${part.partDescription}<br>
+                            Quantity: ${part.quantity}<br>
+                            Source: ${part.partSource}
+                        </div>
+                    `;
+                });
+            } else {
+                detailsHTML += createDetailRow('Parts Used', 'No');
+            }
+            
+            detailsHTML += createDetailRow('Labor Hours', formData.laborHours);
+            detailsHTML += createDetailRow('Next Service', formData.nextService || 'Not specified');
+            
+            container.innerHTML = `
+                <div class="header">
+                    <h1>Service Order Worksheet</h1>
+                    <p>MagTec Alaska</p>
+                </div>
+                <div class="confirmation-screen">
+                    <div class="success-icon">✓</div>
+                    <h2>Service Order Complete!</h2>
+                    <div class="confirmation-details">
+                        ${detailsHTML}
+                    </div>
+                    <button class="btn-submit" onclick="downloadAndSend()" style="width: 100%;">
+                        📧 Save Copy & Send to Office
+                    </button>
+                    <button class="btn-back" onclick="location.reload()" style="width: 100%; margin-top: 15px;">
+                        + Submit Another Report
+                    </button>
+                </div>
+            `;
+        }
+        
+        function createDetailRow(label, value) {
+            return `
+                <div class="detail-row">
+                    <div class="detail-label">${label}</div>
+                    <div class="detail-value">${value}</div>
+                </div>
+            `;
+        }
+        
+        function downloadAndSend() {
+            // First, save the confirmation
+            const confirmationText = buildEmailBody();
+            const blob = new Blob([confirmationText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Service_Order_${formData.serviceOrderNumber || 'Report'}_${formData.date || 'NoDate'}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Then send the email
+            setTimeout(() => {
+                sendEmailAndShowSuccess();
+            }, 500);
+        }
+        
+        function sendEmailAndShowSuccess() {
+            const subject = encodeURIComponent(`Service Order ${formData.serviceOrderNumber || 'Report'} - ${formData.techName || 'Technician'}`);
+            const body = encodeURIComponent(buildEmailBody());
+            const mailtoLink = `mailto:${RECIPIENT_EMAILS.join(',')}?subject=${subject}&body=${body}`;
+            
+            window.location.href = mailtoLink;
+            
+            // Show success message
+            setTimeout(() => {
+                showSuccessMessage();
+            }, 1000);
+        }
+        
+        function showSuccessMessage() {
+            const container = document.querySelector('.container');
+            container.innerHTML = `
+                <div class="header">
+                    <h1>Service Order Worksheet</h1>
+                    <p>MagTec Alaska</p>
+                </div>
+                <div class="confirmation-screen">
+                    <div class="success-icon">✓</div>
+                    <h2 style="color: #10b981;">Successfully Sent!</h2>
+                    <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 25px; margin: 20px 0; text-align: center;">
+                        <p style="font-size: 18px; color: #059669; margin-bottom: 15px;">
+                            <strong>✓ Your copy has been saved to your device</strong>
+                        </p>
+                        <p style="font-size: 18px; color: #059669;">
+                            <strong>✓ Email sent to the office</strong>
+                        </p>
+                        <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
+                            Recipients: NSRentals@magtecalaska.com & Mrussell@magtecalaska.com
+                        </p>
+                    </div>
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
+                        <p style="font-size: 20px; color: #2563eb; font-weight: 600; margin-bottom: 10px;">
+                            Thank you, ${formData.techName || 'Technician'}!
+                        </p>
+                        <p style="font-size: 16px; color: #6b7280;">
+                            Your service order has been submitted successfully.
+                        </p>
+                    </div>
+                    <button class="btn-submit" onclick="location.reload()" style="width: 100%;">
+                        + Submit Another Service Order
+                    </button>
+                </div>
+            `;
+        }
+        
+        
+        function buildEmailBody() {
+            let body = 'SERVICE ORDER WORKSHEET - MagTec Alaska\n';
+            body += '='.repeat(60) + '\n\n';
+            
+            body += `Tech Name: ${formData.techName}\n`;
+            body += `Service Order #: ${formData.serviceOrderNumber}\n`;
+            body += `Division: ${formData.division}\n`;
+            body += `Project: ${formData.project}\n`;
+            body += `Date: ${formData.date}\n`;
+            body += `Asset Number(s): ${formData.assetNumbers}\n`;
+            body += `Run Hours: ${formData.runHours || 'N/A'}\n`;
+            body += `Mileage: ${formData.mileage || 'N/A'}\n`;
+            body += `Related PO #: ${formData.relatedPO || 'N/A'}\n\n`;
+            
+            body += `COMPLAINT:\n${formData.complaint}\n\n`;
+            body += `CORRECTION:\n${formData.correction}\n\n`;
+            body += `LEFT TO COMPLETE:\n${formData.leftToComplete || 'Nothing'}\n\n`;
+            
+            if (formData.partsUsed === 'Yes' && partsData.length > 0) {
+                body += 'PARTS USED:\n';
+                body += '-'.repeat(40) + '\n';
+                partsData.forEach((part, index) => {
+                    body += `Part ${index + 1}:\n`;
+                    body += `  Number: ${part.partNumber}\n`;
+                    body += `  Description: ${part.partDescription}\n`;
+                    body += `  Quantity: ${part.quantity}\n`;
+                    body += `  Source: ${part.partSource}\n\n`;
+                });
+            } else {
+                body += 'PARTS USED: No\n\n';
+            }
+            
+            body += `Labor Hours: ${formData.laborHours}\n`;
+            body += `Next Service: ${formData.nextService || 'Not specified'}\n\n`;
+            
+            body += '='.repeat(60) + '\n';
+            body += `Submitted: ${new Date().toLocaleString()}\n`;
+            
+            return body;
+        }
+        
+        
+        // Allow Enter key to advance (except in textareas)
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const field = currentFields[currentStepIndex];
+                if (field.type !== 'yesno') {
+                    if (currentStepIndex < currentFields.length - 1) {
+                        goNext();
+                    } else {
+                        submitForm();
+                    }
+                }
+            }
+        });
+        
+        // Initialize
+        init();
+    </script>
+</body>
+</html>
